@@ -1,0 +1,174 @@
+
+/*
+// defaults write ~/Library/Preferences/com.bohemiancoding.sketch3.plist AlwaysReloadScript -bool YES
+// defaults write ~/Library/Preferences/com.bohemiancoding.sketch3.plist AlwaysReloadScript -bool NO
+*/
+
+var debugMode = true;
+
+var itemsMatched = 0;
+
+var tabCount = 0;
+var tabs = function() {
+	var str = "";
+	
+	for (var i = 0; i < tabCount; i++) {
+		str = str + "\t";
+	}
+	
+	return str;
+}
+
+var layersToDelete = [];
+
+var stylesDeleted = 0;
+var layersDeleted = 0;
+
+var debugLog = function(msg) {
+	if (debugMode) {
+		log(msg);
+	}
+}
+
+
+var deleteHiddenLayers = function(context)
+{
+	debugLog("Delete hidden layers");
+	
+	var doc = context.document;
+	var page = doc.currentPage();
+	
+	for (var j = 0; j < page.layers().count(); j++) {
+		var layer = page.layers().objectAtIndex(j);
+
+		debugLog(j);
+		handleObject(layer, deleteLayer)
+	}
+	
+	for (var j = 0; j < layersToDelete.length; j++) {
+		var layer = layersToDelete[j];
+		[layer removeFromParent];
+		layersDeleted++;
+	}
+	
+	[doc showMessage: "Deleted " + layersDeleted + " layer" + (itemsMatched != 1 ? "s" : "")];
+}
+
+
+var deleteLayer = function(layer)
+{
+	if (![layer isActive]) {
+		debugLog(tabs()+"↳ Remove from parent");
+		layersToDelete.push(layer);
+		return true;
+	} else {
+		return false;
+	}
+	
+}
+
+
+var deleteLayerStyles = function(layer)
+{
+	if ([layer respondsToSelector: "style"]) {
+		
+		// Fills
+		for(var i = layer.style().fills().count()-1; i >= 0; i--)
+		{
+			var fill = layer.style().fills().objectAtIndex(i);
+			if(!fill.isEnabled())
+			{
+				debugLog(tabs()+"↳ Remove fill");
+				layer.style().removeStyleFillAtIndex(i)
+				stylesDeleted++;
+			}
+		}
+		
+		// Borders
+		for(var i = layer.style().borders().count()-1; i >= 0; i--)
+		{
+			var border = layer.style().borders().objectAtIndex(i);
+			if(!border.isEnabled())
+			{
+				debugLog(tabs()+"↳ Remove border");
+				layer.style().removeStyleBorderAtIndex(i)
+				stylesDeleted++;
+			}
+		}
+		
+		// Shadows
+		for(var i = layer.style().shadows().count()-1; i >= 0; i--)
+		{
+			var shadow = layer.style().shadows().objectAtIndex(i);
+			if(!shadow.isEnabled())
+			{
+				debugLog(tabs()+"↳ Remove shadow");
+				layer.style().removeStyleShadowAtIndex(i)
+				stylesDeleted++;
+			}
+		}
+		
+		// Inner Shadows
+		for(var i = layer.style().innerShadows().count()-1; i >= 0; i--)
+		{
+			var innerShadow = layer.style().innerShadows().objectAtIndex(i);
+			if(!innerShadow.isEnabled())
+			{
+				debugLog(tabs()+"↳ Remove inner shadow");
+				layer.style().removeStyleInnerShadowAtIndex(i)
+				stylesDeleted++;
+			}
+		}
+	}
+}
+
+
+var deleteHiddenLayerStyles = function(context)
+{
+	debugLog("Delete hidden layer Styles");
+	
+	var doc = context.document;
+	var page = doc.currentPage();
+	
+	for (var j = 0; j < page.layers().count(); j++) {
+		var layer = page.layers().objectAtIndex(j);
+
+		handleObject(layer, deleteLayerStyles)
+	}
+	
+	[doc showMessage: "Deleted " + stylesDeleted + " layer style" + (itemsMatched != 1 ? "s" : "")];
+}
+
+
+var handleObject = function(obj, fn)
+{
+
+	// Is it a slice? ignore it
+	if([obj class] == MSSliceLayer) {
+		debugLog(tabs()+[obj name]+" ("+[obj className]+")");
+		return;
+	}
+
+	// Is it a group?
+	if([obj class] == MSLayerGroup || [obj class] == MSShapeGroup || [obj class] == MSArtboardGroup || [obj class] == MSSymbolMaster) {
+		debugLog(tabs()+[obj name]+" ("+[obj className]+")");
+
+		// Call the function on the group itself
+		if (!fn.call(this, obj)) {
+			// Call the function on each of the group inside the layers
+			tabCount++;
+			for(var i = 0; i < obj.layers().count(); i++)
+			{
+				layer = obj.layers().objectAtIndex(i);
+				handleObject(layer, fn);
+			}
+			tabCount--;
+		}
+		return;
+	}
+
+	// debugLog("handle object: "+ [obj class]);
+
+	debugLog(tabs()+[obj name]+" ("+[obj className]+")");
+	fn.call(this, obj);
+}

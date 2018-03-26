@@ -1,0 +1,28 @@
+{
+  "author" : "Wessley Roche",
+  "commands" : [
+	{
+      "script" : "script.cocoascript",
+      "handler" : "deleteHiddenLayers",
+      "name" : "Delete Hidden Layers",
+      "identifier" : "deleteHiddenLayers"
+    },
+    {
+      "script" : "script.cocoascript",
+      "handler" : "deleteHiddenLayerStyles",
+      "name" : "Delete Hidden Layer Styles",
+      "identifier" : "deleteHiddenLayerStyles"
+    }
+  ],
+  "menu": {
+    "items": [
+      "deleteHiddenLayers",
+	  "deleteHiddenLayerStyles"
+    ]
+  },
+  "identifier" : "me.wessley.sketch-clean",
+  "version" : "1.0",
+  "description" : "A plugin that deletes hidden layers and layer styles",
+  "authorEmail" : "wessley@mac.com",
+  "name" : "Clean"
+}
