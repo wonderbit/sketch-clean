@@ -33,8 +33,6 @@ var debugLog = function(msg) {
 
 var deleteHiddenLayers = function(context)
 {
-	debugLog("Delete hidden layers");
-	
 	var doc = context.document;
 	var page = doc.currentPage();
 	
@@ -55,6 +53,28 @@ var deleteHiddenLayers = function(context)
 }
 
 
+var deleteHiddenLayerStyles = function(context)
+{
+	var doc = context.document;
+	var page = doc.currentPage();
+	
+	for (var j = 0; j < page.layers().count(); j++) {
+		var layer = page.layers().objectAtIndex(j);
+
+		handleObject(layer, deleteLayerStyles)
+	}
+	
+	[doc showMessage: "Deleted " + stylesDeleted + " layer style" + (itemsMatched != 1 ? "s" : "")];
+}
+
+
+var deleteHiddenLayerAndStyles = function(context)
+{
+	deleteHiddenLayers(context);
+	deleteHiddenLayerStyles(context);
+}
+
+
 var deleteLayer = function(layer)
 {
 	if (![layer isActive]) {
@@ -64,7 +84,6 @@ var deleteLayer = function(layer)
 	} else {
 		return false;
 	}
-	
 }
 
 
@@ -123,21 +142,7 @@ var deleteLayerStyles = function(layer)
 }
 
 
-var deleteHiddenLayerStyles = function(context)
-{
-	debugLog("Delete hidden layer Styles");
-	
-	var doc = context.document;
-	var page = doc.currentPage();
-	
-	for (var j = 0; j < page.layers().count(); j++) {
-		var layer = page.layers().objectAtIndex(j);
 
-		handleObject(layer, deleteLayerStyles)
-	}
-	
-	[doc showMessage: "Deleted " + stylesDeleted + " layer style" + (itemsMatched != 1 ? "s" : "")];
-}
 
 
 var handleObject = function(obj, fn)

@@ -12,12 +12,19 @@
       "handler" : "deleteHiddenLayerStyles",
       "name" : "Delete Hidden Layer Styles",
       "identifier" : "deleteHiddenLayerStyles"
+    },
+    {
+      "script" : "script.cocoascript",
+      "handler" : "deleteHiddenLayerAndStyles",
+      "name" : "Delete Hidden Layer and Layer Styles",
+      "identifier" : "deleteHiddenLayerAndStyles"
     }
   ],
   "menu": {
     "items": [
       "deleteHiddenLayers",
-	  "deleteHiddenLayerStyles"
+	  "deleteHiddenLayerStyles",
+	  "deleteHiddenLayerAndStyles"
     ]
   },
   "identifier" : "me.wessley.sketch-clean",
